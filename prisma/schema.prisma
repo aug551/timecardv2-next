@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model employees {
+  empid        Int           @id @default(autoincrement())
+  empname      String        @db.VarChar(60)
+  empjob       String?       @db.VarChar(60)
+  ismanager    Boolean?      @default(false)
+  manager_pass manager_pass?
+  shifts       shifts[]
+}
+
+model manager_pass {
+  empid     Int       @id
+  pwd       String    @default("kiku") @db.VarChar
+  employees employees @relation(fields: [empid], references: [empid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model shifts {
+  shiftid    Int       @id @default(autoincrement())
+  empid      Int
+  shiftstart DateTime? @db.Timestamptz(6)
+  shiftend   DateTime? @db.Timestamptz(6)
+  employees  employees @relation(fields: [empid], references: [empid], onDelete: NoAction, onUpdate: NoAction, map: "fk_empid")
+}
